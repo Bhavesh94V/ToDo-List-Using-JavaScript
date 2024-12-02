@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+
+        body {
+            background: #2193b0;
+            background: -webkit-linear-gradient(to right, #2193b0, #6dd5ed);
+            background: linear-gradient(to right, #2193b0, #6dd5ed);
+            color: #fff;
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        button {
+            padding: 8px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button.add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #taskBox {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .taskItem {
+            background-color: #fff;
+            color: #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            font-size: 14px;
+            width: 250px;
+            border: none;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .taskItem span {
+            flex-grow: 1;
+        }
+
+        .taskItem .edit-btn {
+            background-color: rgb(0, 110, 255);
+            color: white;
+            margin-right: 10px;
+        }
+
+        .taskItem .remove-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+    <div style="display: flex;">
+        <input type="text" id="taskInput" placeholder="Enter a new task">
+        <button class="add-btn" onclick="addNewTask()">Add</button>
+    </div>
+    <div id="taskBox"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadStoredTasks();
+        });
+
+        function addNewTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskContent = taskInput.value.trim();
+
+            if (taskContent === '') {
+                alert('Please Add Content.');
+                return;
+            }
+
+            const taskBox = document.getElementById('taskBox');
+            const taskItem = document.createElement('div');
+            taskItem.classList.add('taskItem');
+
+            const taskText = document.createElement('span');
+            taskText.textContent = taskContent;
+            taskItem.appendChild(taskText);
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.classList.add('edit-btn');
+            editButton.onclick = function () {
+                const updatedTask = prompt('Edit task:', taskContent);
+                if (updatedTask !== null && updatedTask.trim() !== '') {
+                    taskText.textContent = updatedTask;
+                    updateLocalStorage();
+                }
+            };
+            taskItem.appendChild(editButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.classList.add('remove-btn');
+            removeButton.onclick = function () {
+                taskBox.removeChild(taskItem);
+                updateLocalStorage();
+            };
+            taskItem.appendChild(removeButton);
+
+            taskBox.appendChild(taskItem);
+            taskInput.value = '';
+            updateLocalStorage();
+        }
+
+        function updateLocalStorage() {
+            const taskBox = document.getElementById('taskBox');
+            const taskList = [];
+
+            Array.from(taskBox.children).forEach(taskItem => {
+                const taskContent = taskItem.querySelector('span').textContent;
+                taskList.push(taskContent);
+            });
+
+            localStorage.setItem('tasks', JSON.stringify(taskList));
+        }
+
+        function loadStoredTasks() {
+            const taskList = JSON.parse(localStorage.getItem('tasks')) || [];
+            const taskBox = document.getElementById('taskBox');
+
+            taskList.forEach(taskContent => {
+                const taskItem = document.createElement('div');
+                taskItem.classList.add('taskItem');
+
+                const taskText = document.createElement('span');
+                taskText.textContent = taskContent;
+                taskItem.appendChild(taskText);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.classList.add('edit-btn');
+                editButton.onclick = () => {
+                    const updatedTask = prompt('Edit task:', taskContent);
+                    if (updatedTask !== null && updatedTask.trim() !== '') {
+                        taskText.textContent = updatedTask;
+                        updateLocalStorage();
+                    }
+                };
+                taskItem.appendChild(editButton);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.classList.add('remove-btn');
+                removeButton.onclick = () => {
+                    taskBox.removeChild(taskItem);
+                    updateLocalStorage();
+                };
+                taskItem.appendChild(removeButton);
+
+                taskBox.appendChild(taskItem);
+            });
+        }
+    </script>
+</body>
+
+</html>
